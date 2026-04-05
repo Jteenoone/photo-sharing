@@ -13,7 +13,6 @@ import { useNavigate } from "react-router-dom";
 import "./styles.css";
 import fetchModel from "../../lib/fetchModelData";
 
-
 const BACKEND_URL = "https://68hr38-3001.csb.app";
 
 function UserList() {
@@ -22,15 +21,17 @@ function UserList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchModel(`${BACKEND_URL}/user/list`)
-      .then((data) => {
+    const fetchUsers = async () => {
+      try {
+        const data = await fetchModel(`${BACKEND_URL}/user/list`);
         setUsers(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Failed to fetch users:", err);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+    fetchUsers();
   }, []);
 
   if (loading) return <CircularProgress sx={{ m: 2 }} />;
@@ -46,7 +47,9 @@ function UserList() {
           <React.Fragment key={user._id}>
             <ListItem disablePadding>
               <ListItemButton onClick={() => navigate(`/users/${user._id}`)}>
-                <ListItemText primary={`${user.first_name} ${user.last_name}`} />
+                <ListItemText
+                  primary={`${user.first_name} ${user.last_name}`}
+                />
               </ListItemButton>
             </ListItem>
             <Divider />

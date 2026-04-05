@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { AppBar, Toolbar, Typography, FormControlLabel, Checkbox } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
 import { useParams, useLocation } from "react-router-dom";
 
 import "./styles.css";
-import models from "../../modelData/models";
+import fetchModel from "../../lib/fetchModelData";
+
+const BACKEND_URL = "https://68hr38-3001.csb.app";
 
 function TopBar({ advancedFeatures, setAdvancedFeatures }) {
   const location = useLocation();
@@ -12,8 +20,15 @@ function TopBar({ advancedFeatures, setAdvancedFeatures }) {
 
   useEffect(() => {
     if (userId) {
-      const u = models.userModel(userId);
-      setUser(u);
+      const fetchUser = async () => {
+        try {
+          const data = await fetchModel(`${BACKEND_URL}/user/${userId}`);
+          setUser(data);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      fetchUser();
     } else {
       setUser(null);
     }
@@ -32,7 +47,7 @@ function TopBar({ advancedFeatures, setAdvancedFeatures }) {
     <AppBar className="topbar-appBar" position="absolute">
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
         <Typography variant="h5" color="inherit">
-          Nguyen Van A
+          Nghiêm Viết Đức Toàn
         </Typography>
         <Typography variant="h6" color="inherit">
           {rightText}

@@ -1,7 +1,12 @@
 import React from "react";
 import {
-  Typography, Box, Card, CardMedia, CardContent,
-  Divider, Button,
+  Typography,
+  Box,
+  Card,
+  CardMedia,
+  CardContent,
+  Divider,
+  Button,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -15,13 +20,18 @@ function UserPhotos({ advancedFeatures }) {
 
   const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleString("en-US", {
-      year: "numeric", month: "long", day: "numeric",
-      hour: "2-digit", minute: "2-digit",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   if (!photos || photos.length === 0) {
-    return <Typography sx={{ p: 2 }}>No photos found for this user.</Typography>;
+    return (
+      <Typography sx={{ p: 2 }}>No photos found for this user.</Typography>
+    );
   }
 
   if (advancedFeatures) {
@@ -31,7 +41,14 @@ function UserPhotos({ advancedFeatures }) {
     return (
       <Box sx={{ p: 2 }}>
         {/* Stepper controls */}
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            mb: 2,
+          }}
+        >
           <Button
             variant="outlined"
             disabled={currentIndex === 0}
@@ -64,16 +81,25 @@ function UserPhotos({ advancedFeatures }) {
               {formatDate(photo.date_time)}
             </Typography>
             <Divider sx={{ my: 1 }} />
-            <Typography variant="subtitle2" gutterBottom>Comments:</Typography>
+            <Typography variant="subtitle2" gutterBottom>
+              Comments:
+            </Typography>
             {photo.comments && photo.comments.length > 0 ? (
               photo.comments.map((comment) => (
-                <Box key={comment._id} sx={{ mb: 1, pl: 1, borderLeft: "3px solid #ddd" }}>
+                <Box
+                  key={comment._id}
+                  sx={{ mb: 1, pl: 1, borderLeft: "3px solid #ddd" }}
+                >
                   <Typography variant="caption" color="text.secondary">
                     {formatDate(comment.date_time)}
                   </Typography>
                   <Typography variant="body2">
                     <span
-                      style={{ fontWeight: "bold", cursor: "pointer", color: "#1976d2" }}
+                      style={{
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        color: "#1976d2",
+                      }}
                       onClick={() => navigate(`/users/${comment.user._id}`)}
                     >
                       {comment.user.first_name} {comment.user.last_name}
@@ -83,7 +109,9 @@ function UserPhotos({ advancedFeatures }) {
                 </Box>
               ))
             ) : (
-              <Typography variant="body2" color="text.secondary">No comments.</Typography>
+              <Typography variant="body2" color="text.secondary">
+                No comments.
+              </Typography>
             )}
           </CardContent>
         </Card>
@@ -106,16 +134,25 @@ function UserPhotos({ advancedFeatures }) {
               {formatDate(photo.date_time)}
             </Typography>
             <Divider sx={{ my: 1 }} />
-            <Typography variant="subtitle2" gutterBottom>Comments:</Typography>
+            <Typography variant="subtitle2" gutterBottom>
+              Comments:
+            </Typography>
             {photo.comments && photo.comments.length > 0 ? (
               photo.comments.map((comment) => (
-                <Box key={comment._id} sx={{ mb: 1, pl: 1, borderLeft: "3px solid #ddd" }}>
+                <Box
+                  key={comment._id}
+                  sx={{ mb: 1, pl: 1, borderLeft: "3px solid #ddd" }}
+                >
                   <Typography variant="caption" color="text.secondary">
                     {formatDate(comment.date_time)}
                   </Typography>
                   <Typography variant="body2">
                     <span
-                      style={{ fontWeight: "bold", cursor: "pointer", color: "#1976d2" }}
+                      style={{
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        color: "#1976d2",
+                      }}
                       onClick={() => navigate(`/users/${comment.user._id}`)}
                     >
                       {comment.user.first_name} {comment.user.last_name}
@@ -125,7 +162,9 @@ function UserPhotos({ advancedFeatures }) {
                 </Box>
               ))
             ) : (
-              <Typography variant="body2" color="text.secondary">No comments.</Typography>
+              <Typography variant="body2" color="text.secondary">
+                No comments.
+              </Typography>
             )}
           </CardContent>
         </Card>
