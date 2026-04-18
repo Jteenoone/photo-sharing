@@ -11,7 +11,7 @@ import { useParams, useLocation } from "react-router-dom";
 import "./styles.css";
 import fetchModel from "../../lib/fetchModelData";
 
-const BACKEND_URL = "https://68hr38-3001.csb.app";
+const BACKEND_URL = "https://5yry4v-8081.csb.app/api";
 
 function TopBar({ advancedFeatures, setAdvancedFeatures }) {
   const location = useLocation();

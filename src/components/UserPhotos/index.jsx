@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Box,
@@ -7,16 +7,36 @@ import {
   CardContent,
   Divider,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 
 import "./styles.css";
-import models from "../../modelData/models";
+import fetchModel from "../../lib/fetchModelData";
+
+const BACKEND_URL = "https://5yry4v-8081.csb.app/api";
 
 function UserPhotos({ advancedFeatures }) {
   const { userId, photoIndex } = useParams();
   const navigate = useNavigate();
-  const photos = models.photoOfUserModel(userId);
+  const [photos, setPhotos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        const data = await fetchModel(
+          `${BACKEND_URL}/photo/photosOfUser/${userId}`
+        );
+        setPhotos(data);
+      } catch (err) {
+        console.error("Failed to fetch photos:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPhotos();
+  }, [userId]);
 
   const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleString("en-US", {
@@ -28,19 +48,21 @@ function UserPhotos({ advancedFeatures }) {
     });
   };
 
+  if (loading) return <CircularProgress sx={{ m: 2 }} />;
+
   if (!photos || photos.length === 0) {
     return (
       <Typography sx={{ p: 2 }}>No photos found for this user.</Typography>
     );
   }
 
+  // ---- ADVANCED MODE: hiện 1 ảnh + stepper ----
   if (advancedFeatures) {
     const currentIndex = photoIndex !== undefined ? parseInt(photoIndex) : 0;
     const photo = photos[currentIndex];
 
     return (
       <Box sx={{ p: 2 }}>
-        {/* Stepper controls */}
         <Box
           sx={{
             display: "flex",
@@ -68,7 +90,6 @@ function UserPhotos({ advancedFeatures }) {
           </Button>
         </Box>
 
-        {/* Single photo */}
         <Card>
           <CardMedia
             component="img"
@@ -119,6 +140,7 @@ function UserPhotos({ advancedFeatures }) {
     );
   }
 
+  // ---- NORMAL MODE: hiện tất cả ảnh ----
   return (
     <Box sx={{ p: 2 }}>
       {photos.map((photo) => (

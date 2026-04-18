@@ -1,4 +1,4 @@
-import './App.css';
+import "./App.css";
 
 import React, { useState } from "react";
 import { Grid, Paper } from "@mui/material";
@@ -8,6 +8,7 @@ import TopBar from "./components/TopBar";
 import UserDetail from "./components/UserDetail";
 import UserList from "./components/UserList";
 import UserPhotos from "./components/UserPhotos";
+import UserComments from "./components/UserComments";
 
 const App = () => {
   const [advancedFeatures, setAdvancedFeatures] = useState(false);
@@ -40,6 +41,7 @@ const App = () => {
                   path="/photos/:userId"
                   element={<UserPhotos advancedFeatures={advancedFeatures} />}
                 />
+                <Route path="/comments/:userId" element={<UserComments />} />
                 <Route path="/users" element={<UserList />} />
               </Routes>
             </Paper>
