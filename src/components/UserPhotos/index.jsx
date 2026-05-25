@@ -8,6 +8,7 @@ import {
   Divider,
   Button,
   CircularProgress,
+  TextField,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -16,11 +17,12 @@ import fetchModel from "../../lib/fetchModelData";
 
 const BACKEND_URL = "https://5yry4v-8081.csb.app/api";
 
-function UserPhotos({ advancedFeatures }) {
+function UserPhotos({ advancedFeatures, token, user }) {
   const { userId, photoIndex } = useParams();
   const navigate = useNavigate();
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [commentText, setCommentText] = useState([]);
 
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -46,6 +48,30 @@ function UserPhotos({ advancedFeatures }) {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  const handleAddComment = async (photoId) => {
+    if (!commentText[photoId]?.trim()) return;
+    const res = await fetch(`${BACKEND_URL}/comment/addComment/${photoId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({ comment: commentText[photoId] }),
+    });
+    if (res.ok) {
+      const newComment = await res.json();
+      setPhotos(
+        photos.map((p) => {
+          if (p._id === photoId) {
+            return { ...p, comments: [...(p.comments || []), newComment] };
+          }
+          return p;
+        })
+      );
+      setCommentText({ ...commentText, [photoId]: "" });
+    }
   };
 
   if (loading) return <CircularProgress sx={{ m: 2 }} />;
@@ -134,6 +160,23 @@ function UserPhotos({ advancedFeatures }) {
                 No comments.
               </Typography>
             )}
+            {user && (
+              <Box sx={{ display: "flex", mt: 1 }}>
+                <TextField
+                  size="small"
+                  fullWidth
+                  placeholder="Thêm comment..."
+                  value={commentText[photo._id] || ""}
+                  onChange={(e) =>
+                    setCommentText({
+                      ...commentText,
+                      [photo._id]: e.target.value,
+                    })
+                  }
+                />
+                <Button onClick={() => handleAddComment(photo._id)}>Gửi</Button>
+              </Box>
+            )}
           </CardContent>
         </Card>
       </Box>
@@ -187,6 +230,23 @@ function UserPhotos({ advancedFeatures }) {
               <Typography variant="body2" color="text.secondary">
                 No comments.
               </Typography>
+            )}
+            {user && (
+              <Box sx={{ display: "flex", mt: 1 }}>
+                <TextField
+                  size="small"
+                  fullWidth
+                  placeholder="Thêm comment..."
+                  value={commentText[photo._id] || ""}
+                  onChange={(e) =>
+                    setCommentText({
+                      ...commentText,
+                      [photo._id]: e.target.value,
+                    })
+                  }
+                />
+                <Button onClick={() => handleAddComment(photo._id)}>Gửi</Button>
+              </Box>
             )}
           </CardContent>
         </Card>

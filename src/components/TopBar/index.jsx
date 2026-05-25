@@ -5,18 +5,20 @@ import {
   Typography,
   FormControlLabel,
   Checkbox,
+  Button,
 } from "@mui/material";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import "./styles.css";
 import fetchModel from "../../lib/fetchModelData";
 
 const BACKEND_URL = "https://5yry4v-8081.csb.app/api";
 
-function TopBar({ advancedFeatures, setAdvancedFeatures }) {
+function TopBar({ advancedFeatures, setAdvancedFeatures, userInfo, onLogout }) {
   const location = useLocation();
   const { userId } = useParams() || {};
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (userId) {
@@ -47,7 +49,7 @@ function TopBar({ advancedFeatures, setAdvancedFeatures }) {
     <AppBar className="topbar-appBar" position="absolute">
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
         <Typography variant="h5" color="inherit">
-          Nghiêm Viết Đức Toàn
+          {userInfo ? `Hi ${userInfo.last_name}` : "Nghiêm Viết Đức Toàn"}
         </Typography>
         <Typography variant="h6" color="inherit">
           {rightText}
@@ -66,6 +68,16 @@ function TopBar({ advancedFeatures, setAdvancedFeatures }) {
             </Typography>
           }
         />
+        {!userInfo && (
+          <Button color="inherit" onClick={() => navigate("/login")}>
+            Login
+          </Button>
+        )}
+        {userInfo && (
+          <Button color="inherit" onClick={() => onLogout()}>
+            Logout
+          </Button>
+        )}
       </Toolbar>
     </AppBar>
   );
