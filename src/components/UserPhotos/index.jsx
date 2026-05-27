@@ -17,7 +17,13 @@ import "./styles.css";
 
 const BACKEND_URL = "https://kxt2z7-8081.csb.app/api";
 
-function UserPhotos({ advancedFeatures, token, user, userId: propUserId }) {
+function UserPhotos({
+  advancedFeatures,
+  token,
+  user,
+  userId: propUserId,
+  refreshKey,
+}) {
   const { userId: paramUserId, photoIndex } = useParams();
   const userId = paramUserId || propUserId;
   const navigate = useNavigate();
@@ -40,7 +46,7 @@ function UserPhotos({ advancedFeatures, token, user, userId: propUserId }) {
       }
     };
     fetchPhotos();
-  }, [userId]);
+  }, [userId, refreshKey]);
 
   const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleString("en-US", {

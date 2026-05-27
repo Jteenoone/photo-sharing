@@ -19,30 +19,12 @@ const BACKEND_URL = "https://kxt2z7-8081.csb.app/api";
 function Profile({ user, token }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState("");
-  const [photos, setPhotos] = useState([]);
-  const [loadingPhotos, setLoadingPhotos] = useState(false);
   const [message, setMessage] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
   const [error, setError] = useState("");
 
-  const fetchMyPhotos = async () => {
-    if (!user?._id) return;
-
-    setLoadingPhotos(true);
-    try {
-      console.log(user._id);
-      const res = await fetch(`${BACKEND_URL}/photo/photosOfUser/${user._id}`);
-      const data = await res.json();
-      setPhotos(data);
-    } catch (err) {
-      setError("Cannot load your photos");
-    } finally {
-      setLoadingPhotos(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMyPhotos();
-  }, [user]);
+ 
+  if (!user) return <p>Loading profile...</p>;
 
   const handleChooseFile = (e) => {
     const file = e.target.files[0];
@@ -79,8 +61,8 @@ function Profile({ user, token }) {
 
       setMessage("Upload photo successfully!");
       setSelectedFile(null);
+      setRefreshKey((prev) => prev + 1);
       setPreview("");
-      fetchMyPhotos();
     } catch (err) {
       setError(err.message);
     }
@@ -166,15 +148,9 @@ function Profile({ user, token }) {
         My Photos
       </Typography>
 
-      {loadingPhotos ? (
-        <CircularProgress />
-      ) : photos.length === 0 ? (
-        <Typography color="text.secondary">You have no photos yet.</Typography>
-      ) : (
-        <Box>
-          <UserPhotos token={token} user={user} userId={user._id} />
-        </Box>
-      )}
+      <Box>
+        <UserPhotos token={token} user={user} userId={user._id} refreshKey={refreshKey} />
+      </Box>
     </Paper>
   );
 }
