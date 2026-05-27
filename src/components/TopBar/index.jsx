@@ -12,7 +12,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import "./styles.css";
 import fetchModel from "../../lib/fetchModelData";
 
-const BACKEND_URL = "https://5yry4v-8081.csb.app/api";
+const BACKEND_URL = "https://kxt2z7-8081.csb.app/api";
 
 function TopBar({ advancedFeatures, setAdvancedFeatures, userInfo, onLogout }) {
   const location = useLocation();
@@ -68,6 +68,11 @@ function TopBar({ advancedFeatures, setAdvancedFeatures, userInfo, onLogout }) {
             </Typography>
           }
         />
+        {userInfo && (
+          <Button color="inherit" onClick={() => navigate("/me")}>
+            Profile
+          </Button>
+        )}
         {!userInfo && (
           <Button color="inherit" onClick={() => navigate("/login")}>
             Login

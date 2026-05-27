@@ -13,11 +13,11 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import "./styles.css";
-import fetchModel from "../../lib/fetchModelData";
+// import fetchModel from "../../lib/fetchModelData";
 
-const BACKEND_URL = "https://5yry4v-8081.csb.app/api";
+const BACKEND_URL = "https://kxt2z7-8081.csb.app/api";
 
-function UserList() {
+function UserList({ token, user }) {
   const [users, setUsers] = useState([]);
   const [photoCounts, setPhotoCounts] = useState({});
   const [commentCounts, setCommentCounts] = useState({});
@@ -27,7 +27,11 @@ function UserList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const usersData = await fetchModel(`${BACKEND_URL}/user/list`);
+        const usersRes = await fetch(`${BACKEND_URL}/user/list`, {
+          headers: { Authorization: "Bearer " + token },
+        });
+        const usersData = await usersRes.json();
+        // const usersData = await fetchModel(`${BACKEND_URL}/user/list`);
         setUsers(usersData);
 
         // Lấy số ảnh và số comments của từng user đồng thời
@@ -35,13 +39,27 @@ function UserList() {
         const commentCountMap = {};
 
         await Promise.all(
-          usersData.map(async (user) => {
-            const [photoRes, commentRes] = await Promise.all([
-              fetchModel(`${BACKEND_URL}/photo/countByUser/${user._id}`),
-              fetchModel(`${BACKEND_URL}/photo/commentsByUser/${user._id}`),
-            ]);
-            photoCountMap[user._id] = photoRes.count;
-            commentCountMap[user._id] = commentRes.length;
+          usersData.map(async (u) => {
+            const photoRes = await fetch(
+              `${BACKEND_URL}/photo/countByUser/${u._id}`,
+              {
+                headers: { Authorization: "Bearer " + token },
+              }
+            );
+            const commentRes = await fetch(
+              `${BACKEND_URL}/photo/commentsByUser/${u._id}`,
+              {
+                headers: { Authorization: "Bearer " + token },
+              }
+            );
+            const photoData = await photoRes.json();
+            const commentData = await commentRes.json();
+            // const [photoRes, commentRes] = await Promise.all([
+            //   fetchModel(`${BACKEND_URL}/photo/countByUser/${user._id}`),
+            //   fetchModel(`${BACKEND_URL}/photo/commentsByUser/${user._id}`),
+            // ]);
+            photoCountMap[u._id] = photoData.count;
+            commentCountMap[u._id] = commentData.length;
           })
         );
 
@@ -65,40 +83,42 @@ function UserList() {
       </Typography>
       <Divider />
       <List component="nav">
-        {users.map((user) => (
-          <React.Fragment key={user._id}>
-            <ListItem disablePadding>
-              <ListItemButton onClick={() => navigate(`/users/${user._id}`)}>
-                <ListItemText
-                  primary={`${user.first_name} ${user.last_name}`}
-                />
-              </ListItemButton>
-              <Box sx={{ display: "flex", gap: 1 }}>
-                {/* Bubble xanh - số ảnh */}
-                <Chip
-                  label={photoCounts[user._id] ?? 0}
-                  size="small"
-                  sx={{
-                    bgcolor: "green",
-                    color: "white",
-                    fontWeight: "bold",
-                  }}
-                />
-                {/* Bubble đỏ - số comments, click vào xem comments */}
-                <Chip
-                  label={commentCounts[user._id] ?? 0}
-                  size="small"
-                  sx={{ bgcolor: "red", color: "white", fontWeight: "bold" }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/comments/${user._id}`);
-                  }}
-                />
-              </Box>
-            </ListItem>
-            <Divider />
-          </React.Fragment>
-        ))}
+        {users
+          .filter((u) => u._id !== user._id)
+          .map((u) => (
+            <React.Fragment key={u._id}>
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => navigate(`/users/${u._id}`)}>
+                  <ListItemText
+                    primary={`${u.first_name} ${u.last_name}`}
+                  />
+                </ListItemButton>
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  {/* Bubble xanh - số ảnh */}
+                  <Chip
+                    label={photoCounts[u._id] ?? 0}
+                    size="small"
+                    sx={{
+                      bgcolor: "green",
+                      color: "white",
+                      fontWeight: "bold",
+                    }}
+                  />
+                  {/* Bubble đỏ - số comments, click vào xem comments */}
+                  <Chip
+                    label={commentCounts[u._id] ?? 0}
+                    size="small"
+                    sx={{ bgcolor: "red", color: "white", fontWeight: "bold" }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/comments/${u._id}`);
+                    }}
+                  />
+                </Box>
+              </ListItem>
+              <Divider />
+            </React.Fragment>
+          ))}
       </List>
     </div>
   );

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { Box, TextField, Button, Typography, Paper } from "@mui/material";
 
 function Register() {
-  const BACKEND_URL = "https://5yry4v-8081.csb.app/api";
+  const BACKEND_URL = "https://kxt2z7-8081.csb.app/api";
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",

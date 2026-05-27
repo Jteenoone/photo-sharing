@@ -15,8 +15,9 @@ import UserPhotos from "./components/UserPhotos";
 import UserComments from "./components/UserComments";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Profile from "./components/Profile";
 
-const BACKEND_URL = "https://5yry4v-8081.csb.app/api";
+const BACKEND_URL = "https://kxt2z7-8081.csb.app/api";
 
 const App = () => {
   const [advancedFeatures, setAdvancedFeatures] = useState(false);
@@ -76,71 +77,78 @@ const App = () => {
         <Route
           path="/*"
           element={
-            <div>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TopBar
-                    advancedFeatures={advancedFeatures}
-                    setAdvancedFeatures={setAdvancedFeatures}
-                    userInfo={user}
-                    onLogout={handleLogout}
-                  />
+            !isLogin ? (
+              <Navigate to="/login" />
+            ) : (
+              <div>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TopBar
+                      advancedFeatures={advancedFeatures}
+                      setAdvancedFeatures={setAdvancedFeatures}
+                      userInfo={user}
+                      onLogout={handleLogout}
+                    />
+                  </Grid>
+
+                  <div className="main-topbar-buffer" />
+
+                  <Grid item sm={3}>
+                    <Paper className="main-grid-item">
+                      <UserList token={token} user={user} />
+                    </Paper>
+                  </Grid>
+
+                  <Grid item sm={9}>
+                    <Paper className="main-grid-item">
+                      <Routes>
+                        <Route
+                          path="/users/:userId"
+                          element={<UserDetail token={token} />}
+                        />
+                        <Route
+                          path="/me"
+                          element={<Profile user={user} token={token} />}
+                        />
+                        <Route
+                          path="/photos/:userId/:photoIndex"
+                          element={
+                            <UserPhotos
+                              token={token}
+                              user={user}
+                              advancedFeatures={advancedFeatures}
+                            />
+                          }
+                        />
+
+                        <Route
+                          path="/photos/:userId"
+                          element={
+                            <UserPhotos
+                              token={token}
+                              user={user}
+                              advancedFeatures={advancedFeatures}
+                            />
+                          }
+                        />
+
+                        <Route
+                          path="/comments/:userId"
+                          element={<UserComments token={token} />}
+                        />
+
+                        <Route
+                          path="/users"
+                          element={<UserList token={token} user={user} />}
+                        />
+
+                        <Route path="/" element={<Navigate to="/users" />} />
+                      </Routes>
+                    </Paper>
+                  </Grid>
                 </Grid>
-
-                <div className="main-topbar-buffer" />
-
-                <Grid item sm={3}>
-                  <Paper className="main-grid-item">
-                    <UserList token={token} />
-                  </Paper>
-                </Grid>
-
-                <Grid item sm={9}>
-                  <Paper className="main-grid-item">
-                    <Routes>
-                      <Route
-                        path="/users/:userId"
-                        element={<UserDetail token={token} />}
-                      />
-
-                      <Route
-                        path="/photos/:userId/:photoIndex"
-                        element={
-                          <UserPhotos
-                            token={token}
-                            user={user}
-                            advancedFeatures={advancedFeatures}
-                          />
-                        }
-                      />
-
-                      <Route
-                        path="/photos/:userId"
-                        element={
-                          <UserPhotos
-                            token={token}
-                            user={user}
-                            advancedFeatures={advancedFeatures}
-                          />
-                        }
-                      />
-
-                      <Route
-                        path="/comments/:userId"
-                        element={<UserComments token={token} />}
-                      />
-
-                      <Route
-                        path="/users"
-                        element={<UserList token={token} />}
-                      />
-
-                      <Route path="/" element={<Navigate to="/users" />} />
-                    </Routes>
-                  </Paper>
-                </Grid>
-              </Grid>
-            </div>
+              </div>
+            )
           }
         />
       </Routes>

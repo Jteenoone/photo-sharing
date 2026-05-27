@@ -9,7 +9,7 @@ function Login({ setToken, setUser }) {
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const BACKEND_URL = "https://5yry4v-8081.csb.app/api";
+  const BACKEND_URL = "https://kxt2z7-8081.csb.app/api";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,22 +17,33 @@ function Login({ setToken, setUser }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch(`${BACKEND_URL}/user/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: formData.username,
-        password: formData.password,
-      }),
-    });
-    const data = await res.json();
-    if (res.ok) {
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/user/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+        }),
+      });
+
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
+
+      if (!res.ok) {
+        setError(data.message || "Login failed");
+        return;
+      }
+
       localStorage.setItem("token", data.token);
       setToken(data.token);
-      setUser(data);
+      setUser(data.user);
       navigate("/");
-    } else {
-      setError(data.message);
+    } catch (err) {
+      setError(err.message);
     }
   };
 

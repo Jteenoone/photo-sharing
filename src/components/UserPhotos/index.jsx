@@ -13,12 +13,13 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 
 import "./styles.css";
-import fetchModel from "../../lib/fetchModelData";
+// import fetchModel from "../../lib/fetchModelData";
 
-const BACKEND_URL = "https://5yry4v-8081.csb.app/api";
+const BACKEND_URL = "https://kxt2z7-8081.csb.app/api";
 
-function UserPhotos({ advancedFeatures, token, user }) {
-  const { userId, photoIndex } = useParams();
+function UserPhotos({ advancedFeatures, token, user, userId: propUserId }) {
+  const { userId: paramUserId, photoIndex } = useParams();
+  const userId = paramUserId || propUserId;
   const navigate = useNavigate();
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,9 +28,10 @@ function UserPhotos({ advancedFeatures, token, user }) {
   useEffect(() => {
     const fetchPhotos = async () => {
       try {
-        const data = await fetchModel(
-          `${BACKEND_URL}/photo/photosOfUser/${userId}`
-        );
+        const res = await fetch(`${BACKEND_URL}/photo/photosOfUser/${userId}`, {
+          headers: { Authorization: "Bearer " + token },
+        });
+        const data = await res.json();
         setPhotos(data);
       } catch (err) {
         console.error("Failed to fetch photos:", err);
@@ -119,7 +121,7 @@ function UserPhotos({ advancedFeatures, token, user }) {
         <Card>
           <CardMedia
             component="img"
-            image={require(`../../images/${photo.file_name}`)}
+            image={`${BACKEND_URL}/images/${photo.file_name}`}
             alt="user photo"
             sx={{ maxHeight: 400, objectFit: "contain", bgcolor: "#f5f5f5" }}
           />
@@ -190,7 +192,7 @@ function UserPhotos({ advancedFeatures, token, user }) {
         <Card key={photo._id} sx={{ mb: 4 }}>
           <CardMedia
             component="img"
-            image={require(`../../images/${photo.file_name}`)}
+            image={`${BACKEND_URL}/images/${photo.file_name}`}
             alt="user photo"
             sx={{ maxHeight: 400, objectFit: "contain", bgcolor: "#f5f5f5" }}
           />

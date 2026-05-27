@@ -11,10 +11,11 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 
 import fetchModel from "../../lib/fetchModelData";
+import { wait } from "@testing-library/user-event/dist/utils";
 
-const BACKEND_URL = "https://5yry4v-8081.csb.app/api";
+const BACKEND_URL = "https://kxt2z7-8081.csb.app/api";
 
-function UserComments() {
+function UserComments({ token }) {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [comments, setComments] = useState([]);
@@ -24,10 +25,21 @@ function UserComments() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [commentsData, userData] = await Promise.all([
-          fetchModel(`${BACKEND_URL}/photo/commentsByUser/${userId}`),
-          fetchModel(`${BACKEND_URL}/user/${userId}`),
-        ]);
+        const commentsRes = await fetch(
+          `${BACKEND_URL}/photo/commentsByUser/${userId}`,
+          {
+            headers: { Authorization: "Bearer " + token },
+          }
+        );
+        const userRes = await fetch(`${BACKEND_URL}/user/${userId}`, {
+          headers: { Authorization: "Bearer " + token },
+        });
+        const commentsData = await commentsRes.json();
+        const userData = await userRes.json();
+        // const [commentsData, userData] = await Promise.all([
+        //   fetchModel(`${BACKEND_URL}/photo/commentsByUser/${userId}`),
+        //   fetchModel(`${BACKEND_URL}/user/${userId}`),
+        // ]);
         setComments(commentsData);
         setUser(userData);
       } catch (err) {

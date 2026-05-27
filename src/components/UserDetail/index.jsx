@@ -9,11 +9,11 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 
 import "./styles.css";
-import fetchModel from "../../lib/fetchModelData";
+// import fetchModel from "../../lib/fetchModelData";
 
-const BACKEND_URL = "https://5yry4v-8081.csb.app/api";
+const BACKEND_URL = "https://kxt2z7-8081.csb.app/api";
 
-function UserDetail() {
+function UserDetail({token}) {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -22,7 +22,10 @@ function UserDetail() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const data = await fetchModel(`${BACKEND_URL}/user/${userId}`);
+        const res = await fetch(`${BACKEND_URL}/user/${userId}`, {
+          headers: { Authorization: "Bearer " + token },
+        });
+        const data = await res.json();
         setUser(data);
         setLoading(false);
       } catch (err) {
