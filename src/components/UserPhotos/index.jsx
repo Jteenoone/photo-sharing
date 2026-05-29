@@ -30,6 +30,8 @@ function UserPhotos({
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState([]);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [commentTextEdit, setCommentTextEdit] = useState("");
 
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -109,6 +111,45 @@ function UserPhotos({
             return p;
           })
         );
+      }
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  const handleEditComment = async ({ id, photoId }) => {
+    try {
+      console.log(id);
+      const res = await fetch(
+        `${BACKEND_URL}/comment/updateComment/${photoId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({ id, content: commentTextEdit }),
+        }
+      );
+      if (res.ok) {
+        setPhotos((prev) =>
+          prev.map((p) => {
+            if (p._id === photoId) {
+              return {
+                ...p,
+                comments: p.comments.map((c) =>
+                  c._id === id ? { ...c, comment: commentTextEdit } : c
+                ),
+              };
+            }
+            return p;
+          })
+        );
+        setCommentTextEdit("");
+        setEditingCommentId(null);
+      } else {
+        const data = await res.json();
+        console.log(data);
       }
     } catch (err) {
       console.log(err.message);
@@ -196,6 +237,18 @@ function UserPhotos({
                     </span>
                     : {comment.comment}
                   </Typography>
+                  {user._id === comment.user_id.toString() && (
+                    <Button
+                      onClick={() =>
+                        handleDeleteComment({
+                          id: comment._id,
+                          photoId: photo._id,
+                        })
+                      }
+                    >
+                      Delete
+                    </Button>
+                  )}
                 </Box>
               ))
             ) : (
@@ -254,32 +307,69 @@ function UserPhotos({
                   <Typography variant="caption" color="text.secondary">
                     {formatDate(comment.date_time)}
                   </Typography>
-                  <Typography variant="body2">
-                    <span
-                      style={{
-                        fontWeight: "bold",
-                        cursor: "pointer",
-                        color: "#1976d2",
-                      }}
-                      onClick={() => navigate(`/users/${comment.user._id}`)}
-                    >
-                      {comment.user
-                        ? `${comment.user.first_name} ${comment.user.last_name}`
-                        : "undefined"}
-                    </span>
-                    : {comment.comment}
-                  </Typography>
+                  {editingCommentId === comment._id ? (
+                    <Typography>
+                      <TextField
+                        size="small"
+                        fullWidth
+                        placeholder="Thêm comment..."
+                        value={commentTextEdit || ""}
+                        onChange={(e) => setCommentTextEdit(e.target.value)}
+                      />
+                      <Button
+                        onClick={() =>
+                          handleEditComment({
+                            id: comment._id,
+                            photoId: photo._id,
+                          })
+                        }
+                      >
+                        Gửi
+                      </Button>
+                      <Button onClick={() => setEditingCommentId(null)}>
+                        Cancel
+                      </Button>
+                    </Typography>
+                  ) : (
+                    <Typography variant="body2">
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                          cursor: "pointer",
+                          color: "#1976d2",
+                        }}
+                        onClick={() => navigate(`/users/${comment.user._id}`)}
+                      >
+                        {comment.user
+                          ? `${comment.user.first_name} ${comment.user.last_name}`
+                          : "undefined"}
+                      </span>
+                      : {comment.comment}
+                    </Typography>
+                  )}
                   {user._id === comment.user_id.toString() && (
-                    <Button
-                      onClick={() =>
-                        handleDeleteComment({
-                          id: comment._id,
-                          photoId: photo._id,
-                        })
-                      }
-                    >
-                      Delete
-                    </Button>
+                    <div>
+                      {editingCommentId !== comment._id && (
+                        <Button
+                          onClick={() => {
+                            setCommentTextEdit(comment.comment);
+                            setEditingCommentId(comment._id);
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      )}
+                      <Button
+                        onClick={() =>
+                          handleDeleteComment({
+                            id: comment._id,
+                            photoId: photo._id,
+                          })
+                        }
+                      >
+                        Delete
+                      </Button>
+                    </div>
                   )}
                 </Box>
               ))
