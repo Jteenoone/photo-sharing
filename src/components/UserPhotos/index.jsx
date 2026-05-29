@@ -70,8 +70,8 @@ function UserPhotos({
     });
     if (res.ok) {
       const newComment = await res.json();
-      setPhotos(
-        photos.map((p) => {
+      setPhotos((prev) =>
+        prev.map((p) => {
           if (p._id === photoId) {
             return { ...p, comments: [...(p.comments || []), newComment] };
           }
@@ -79,6 +79,39 @@ function UserPhotos({
         })
       );
       setCommentText({ ...commentText, [photoId]: "" });
+    }
+  };
+
+  const handleDeleteComment = async ({ id, photoId }) => {
+    try {
+      const res = await fetch(
+        `${BACKEND_URL}/comment/deleteComment/${photoId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({ id }),
+        }
+      );
+      if (res.ok) {
+        setPhotos((prev) =>
+          prev.map((p) => {
+            if (p._id === photoId) {
+              return {
+                ...p,
+                comments: p.comments.filter(
+                  (c) => String(c._id) !== String(id)
+                ),
+              };
+            }
+            return p;
+          })
+        );
+      }
+    } catch (err) {
+      console.log(err.message);
     }
   };
 
@@ -157,7 +190,9 @@ function UserPhotos({
                       }}
                       onClick={() => navigate(`/users/${comment.user._id}`)}
                     >
-                      {comment.user.first_name} {comment.user.last_name}
+                      {comment.user
+                        ? `${comment.user.first_name} ${comment.user.last_name}`
+                        : "undefined"}
                     </span>
                     : {comment.comment}
                   </Typography>
@@ -228,10 +263,24 @@ function UserPhotos({
                       }}
                       onClick={() => navigate(`/users/${comment.user._id}`)}
                     >
-                      {comment.user.first_name} {comment.user.last_name}
+                      {comment.user
+                        ? `${comment.user.first_name} ${comment.user.last_name}`
+                        : "undefined"}
                     </span>
                     : {comment.comment}
                   </Typography>
+                  {user._id === comment.user_id.toString() && (
+                    <Button
+                      onClick={() =>
+                        handleDeleteComment({
+                          id: comment._id,
+                          photoId: photo._id,
+                        })
+                      }
+                    >
+                      Delete
+                    </Button>
+                  )}
                 </Box>
               ))
             ) : (
